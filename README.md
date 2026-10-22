@@ -29,3 +29,5 @@ BookTrack is a library management system designed to manage books, students, iss
 - Issue and return books
 - Track book availability
 - Automate backend builds and tests using Jenkins
+
+CI pipeline verification completed.
