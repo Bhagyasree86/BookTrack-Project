@@ -1,3 +1,4 @@
+
 pipeline {
     agent any
 
@@ -8,10 +9,10 @@ pipeline {
             }
         }
 
-        stage('Build Backend') {
+        stage('Build and Test Backend') {
             steps {
                 dir('backend') {
-                    bat 'mvnw.cmd -B -DskipTests package'
+                    bat 'mvnw.cmd -B clean verify'
                 }
             }
         }
@@ -19,11 +20,11 @@ pipeline {
 
     post {
         success {
-            echo 'BookTrack backend build completed successfully!'
+            echo 'BookTrack backend build and tests passed!'
         }
 
         failure {
-            echo 'Build failed. Check the Jenkins console output.'
+            echo 'Build or tests failed. Check the console output.'
         }
     }
 }
