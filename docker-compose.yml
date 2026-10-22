@@ -1,0 +1,79 @@
+# ========================================================
+# BookTrack – Multi-Container Docker Compose Stack
+# Author: Member 5 (Docker, Integration Testing & Documentation)
+# Services: MySQL 8.0 + Spring Boot Backend + Frontend Nginx
+# ========================================================
+
+services:
+  # ------------------------------------------------------
+  # Database Service: MySQL 8.0
+  # ------------------------------------------------------
+  mysql:
+    image: mysql:8.0
+    container_name: booktrack-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: booktrack_db
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_USER: bookuser
+      MYSQL_PASSWORD: bookpassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - booktrack-network
+
+  # ------------------------------------------------------
+  # Backend Service: Spring Boot (Java 21)
+  # ------------------------------------------------------
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: booktrack-backend
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/booktrack_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: rootpassword
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SERVER_PORT: 8081
+    ports:
+      - "8081:8081"
+    networks:
+      - booktrack-network
+
+  # ------------------------------------------------------
+  # Frontend Service: Static Web Server (Nginx)
+  # ------------------------------------------------------
+  frontend:
+    image: nginx:alpine
+    container_name: booktrack-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+    networks:
+      - booktrack-network
+
+networks:
+  booktrack-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
+    driver: local
