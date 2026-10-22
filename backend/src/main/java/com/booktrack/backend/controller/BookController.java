@@ -4,6 +4,8 @@ package com.booktrack.backend.controller;
 import com.booktrack.backend.entity.Book;
 import com.booktrack.backend.service.BookService;
 
+import jakarta.validation.Valid;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -37,18 +39,32 @@ public class BookController {
 
     // Add a new book
     @PostMapping
-    public ResponseEntity<Book> addBook(@RequestBody Book book) {
+    public ResponseEntity<Book> addBook(
+            @Valid @RequestBody Book book) {
+
+        if (book.getAvailableCopies() > book.getQuantity()) {
+            return ResponseEntity.badRequest().build();
+        }
+
         Book savedBook = bookService.addBook(book);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedBook);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(savedBook);
     }
 
     // Update an existing book
     @PutMapping("/{id}")
     public ResponseEntity<Book> updateBook(
             @PathVariable Long id,
-            @RequestBody Book book) {
+            @Valid @RequestBody Book book) {
+
+        if (book.getAvailableCopies() > book.getQuantity()) {
+            return ResponseEntity.badRequest().build();
+        }
+
         try {
-            return ResponseEntity.ok(bookService.updateBook(id, book));
+            Book updatedBook = bookService.updateBook(id, book);
+            return ResponseEntity.ok(updatedBook);
         } catch (RuntimeException exception) {
             return ResponseEntity.notFound().build();
         }
