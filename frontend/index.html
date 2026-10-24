@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="BookTrack - Library Management System with DevOps CI/CD Automation" />
+  <title>BookTrack | Library Management System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Manrope:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="#dashboard" aria-label="BookTrack home">
+        <span class="brand-mark" aria-hidden="true">B</span>
+        <span>Book<span class="brand-light">Track</span><small>LIBRARY AUTOMATION</small></span>
+      </a>
+      <div class="nav-label">WORKSPACE</div>
+      <nav class="nav-list" aria-label="Main navigation">
+        <button class="nav-link active" data-page="dashboard"><span class="nav-icon">▦</span>Dashboard</button>
+        <button class="nav-link" data-page="books"><span class="nav-icon">▤</span>Books</button>
+        <button class="nav-link" data-page="students"><span class="nav-icon">♙</span>Students</button>
+        <button class="nav-link" data-page="loans"><span class="nav-icon">⇄</span>Issue &amp; Return</button>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="sidebar-note">
+          <span class="note-icon">✦</span>
+          <strong>Good libraries<br />build great futures.</strong>
+          <p>Organize collections, register students, and automate loan workflows effortlessly.</p>
+        </div>
+        <div class="profile">
+          <div class="avatar">BT</div>
+          <div>
+            <strong>BookTrack Admin</strong>
+            <span>Library workspace</span>
+          </div>
+          <span class="profile-dots">•••</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <header class="topbar">
+        <button class="mobile-menu" id="mobileMenu" aria-label="Open navigation">☰</button>
+        <div class="breadcrumbs">
+          <span>Workspace</span>
+          <span class="crumb-slash">/</span>
+          <strong id="pageCrumb">Dashboard</strong>
+        </div>
+        <div class="topbar-right">
+          <button class="mode-pill" id="toggleModeBtn" title="Click to toggle between Demo Mode (Sample Data) and Live Backend">
+            <span class="connection-dot" id="connectionDot"></span>
+            <span id="connectionText" class="connection-text">Checking backend…</span>
+          </button>
+          <div class="top-avatar" title="Administrator Profile">BT</div>
+        </div>
+      </header>
+
+      <div class="page-wrap">
+        <!-- Interactive Demo Banner (Requirement 10) -->
+        <div class="demo-banner hidden" id="demoBanner">
+          <div class="demo-banner-content">
+            <span class="demo-icon">💡</span>
+            <div>
+              <strong>Sample Data Mode Active:</strong> You are exploring BookTrack using offline interactive sample data. All actions (Add, Edit, Delete, Register, Issue, Return) work immediately. Click the mode button above to connect to live Spring Boot APIs.
+            </div>
+          </div>
+          <div class="demo-banner-actions">
+            <button class="button-small-ghost" id="resetDemoBtn" title="Reset sample data to initial default catalog">↺ Reset Sample Data</button>
+          </div>
+        </div>
+
+        <!-- ================= PAGE 1: DASHBOARD ================= -->
+        <section class="page active" id="page-dashboard">
+          <div class="page-heading heading-row">
+            <div>
+              <p class="eyebrow">LIBRARY OVERVIEW</p>
+              <h1>Good day, Admin <span class="heading-period">.</span></h1>
+              <p class="page-subtitle">Here’s what’s happening in your library today.</p>
+            </div>
+            <button class="button button-primary" data-go="books" data-action="add-book">
+              <span>＋</span> Add a book
+            </button>
+          </div>
+
+          <div class="hero-banner">
+            <div class="hero-copy">
+              <span class="hero-kicker">AUTOMATED LIBRARY MANAGEMENT</span>
+              <h2>Every book has a story.<br /><em>Keep yours moving.</em></h2>
+              <p>Manage your collection, students, and circulation records with CI/CD powered reliability.</p>
+              <button class="button button-light" data-go="loans">Manage lending <span>↗</span></button>
+            </div>
+            <div class="hero-art" aria-hidden="true">
+              <div class="art-circle circle-one"></div>
+              <div class="art-circle circle-two"></div>
+              <div class="book-stack">
+                <div class="book book-a"></div>
+                <div class="book book-b"></div>
+                <div class="book book-c"></div>
+                <div class="book book-d"></div>
+              </div>
+              <div class="art-spark spark-one">✳</div>
+              <div class="art-spark spark-two">✦</div>
+            </div>
+          </div>
+
+          <div class="section-title-row">
+            <div>
+              <h2>Library at a glance</h2>
+              <p class="section-subtitle">A quick real-time summary of your collection.</p>
+            </div>
+            <button class="text-button" id="refreshDashboard">↻ Refresh data</button>
+          </div>
+
+          <!-- Statistics Cards Grid -->
+          <div class="stats-grid">
+            <article class="stat-card">
+              <div class="stat-top">
+                <span class="stat-label">Total titles</span>
+                <span class="stat-icon violet">▤</span>
+              </div>
+              <div class="stat-value" id="statBooks">—</div>
+              <div class="stat-foot">Books in your collection</div>
+            </article>
+
+            <article class="stat-card">
+              <div class="stat-top">
+                <span class="stat-label">Available copies</span>
+                <span class="stat-icon green">✓</span>
+              </div>
+              <div class="stat-value" id="statAvailable">—</div>
+              <div class="stat-foot">Ready to be borrowed</div>
+            </article>
+
+            <article class="stat-card">
+              <div class="stat-top">
+                <span class="stat-label">Registered students</span>
+                <span class="stat-icon orange">♙</span>
+              </div>
+              <div class="stat-value" id="statStudents">—</div>
+              <div class="stat-foot">Active student members</div>
+            </article>
+
+            <article class="stat-card">
+              <div class="stat-top">
+                <span class="stat-label">Currently issued</span>
+                <span class="stat-icon blue">⇄</span>
+              </div>
+              <div class="stat-value" id="statIssued">—</div>
+              <div class="stat-foot">Books out on loan</div>
+            </article>
+          </div>
+
+          <!-- Dashboard Grid: Recent Books & Quick Actions -->
+          <div class="dashboard-grid">
+            <section class="panel recent-panel">
+              <div class="panel-heading">
+                <div>
+                  <h2>Recent books</h2>
+                  <p>Latest additions to the library collection</p>
+                </div>
+                <button class="text-button" data-go="books">View all ↗</button>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>BOOK</th>
+                      <th>CATEGORY</th>
+                      <th>AVAILABILITY</th>
+                    </tr>
+                  </thead>
+                  <tbody id="recentBooks">
+                    <tr><td colspan="3" class="empty-cell">Loading books…</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <section class="panel quick-panel">
+              <div class="panel-heading">
+                <div>
+                  <h2>Quick actions</h2>
+                  <p>Common daily library operations</p>
+                </div>
+              </div>
+              <button class="quick-action" data-go="books" data-action="add-book">
+                <span class="quick-icon quick-violet">＋</span>
+                <span>
+                  <strong>Add a new book</strong>
+                  <small>Register a title into catalog</small>
+                </span>
+                <b>↗</b>
+              </button>
+              <button class="quick-action" data-go="students" data-action="add-student">
+                <span class="quick-icon quick-orange">♙</span>
+                <span>
+                  <strong>Register a student</strong>
+                  <small>Create student member record</small>
+                </span>
+                <b>↗</b>
+              </button>
+              <button class="quick-action" data-go="loans" data-action="issue-book">
+                <span class="quick-icon quick-green">⇄</span>
+                <span>
+                  <strong>Issue a book</strong>
+                  <small>Record a new borrowing</small>
+                </span>
+                <b>↗</b>
+              </button>
+            </section>
+          </div>
+        </section>
+
+        <!-- ================= PAGE 2: BOOKS ================= -->
+        <section class="page" id="page-books">
+          <div class="page-heading heading-row">
+            <div>
+              <p class="eyebrow">CATALOG</p>
+              <h1>Book management<span class="heading-period">.</span></h1>
+              <p class="page-subtitle">Organize titles, track availability, and manage your inventory.</p>
+            </div>
+            <button class="button button-primary" id="showBookForm"><span>＋</span> Add a book</button>
+          </div>
+
+          <!-- Add / Edit Book Form Panel -->
+          <section class="panel form-panel hidden" id="bookFormPanel">
+            <div class="panel-heading">
+              <div>
+                <h2 id="bookFormTitle">Add a new book</h2>
+                <p>Enter the book details below. Fields marked * are mandatory.</p>
+              </div>
+              <button class="icon-button" id="cancelBookForm" aria-label="Close form">✕</button>
+            </div>
+            <form id="bookForm" class="form-grid">
+              <input type="hidden" id="bookId" />
+              <label>
+                Book title *
+                <input id="bookTitle" name="title" required maxlength="150" placeholder="e.g. Clean Code" />
+              </label>
+              <label>
+                Author *
+                <input id="bookAuthor" name="author" required maxlength="100" placeholder="e.g. Robert C. Martin" />
+              </label>
+              <label>
+                ISBN *
+                <input id="bookIsbn" name="isbn" required maxlength="20" placeholder="e.g. 9780132350884" />
+              </label>
+              <label>
+                Category
+                <input id="bookCategory" name="category" maxlength="60" placeholder="e.g. Computer Science" />
+              </label>
+              <label>
+                Total quantity *
+                <input id="bookQuantity" name="quantity" type="number" min="0" value="1" required />
+              </label>
+              <label>
+                Available copies *
+                <input id="bookAvailable" name="availableCopies" type="number" min="0" value="1" required />
+              </label>
+              <div class="form-actions">
+                <button type="button" class="button button-outline" id="cancelBookForm2">Cancel</button>
+                <button type="submit" class="button button-primary" id="saveBookButton">Save book</button>
+              </div>
+            </form>
+          </section>
+
+          <!-- Book Category Filter Pills -->
+          <div class="category-filters">
+            <button class="cat-filter active" data-category="ALL">All Categories</button>
+            <button class="cat-filter" data-category="Computer Science">Computer Science</button>
+            <button class="cat-filter" data-category="Software Engineering">Software Engineering</button>
+            <button class="cat-filter" data-category="Algorithms">Algorithms</button>
+            <button class="cat-filter" data-category="DevOps">DevOps</button>
+            <button class="cat-filter" data-category="Technology">Technology</button>
+          </div>
+
+          <!-- All Books Table Panel -->
+          <section class="panel">
+            <div class="panel-heading list-heading">
+              <div>
+                <h2>All books <span class="count-pill" id="bookCount">0</span></h2>
+                <p>Search and manage your library inventory.</p>
+              </div>
+              <div class="search-box">
+                <span>⌕</span>
+                <input id="bookSearch" type="search" placeholder="Search title, author, or ISBN…" aria-label="Search books" />
+                <button id="clearBookSearch" aria-label="Clear search">×</button>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>BOOK DETAILS</th>
+                    <th>ISBN</th>
+                    <th>CATEGORY</th>
+                    <th>QUANTITY</th>
+                    <th>AVAILABLE</th>
+                    <th class="actions-heading">ACTIONS</th>
+                  </tr>
+                </thead>
+                <tbody id="booksTable">
+                  <tr><td colspan="6" class="empty-cell">Loading books…</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="table-footer" id="booksFooter">Showing your book collection</div>
+          </section>
+        </section>
+
+        <!-- ================= PAGE 3: STUDENTS ================= -->
+        <section class="page" id="page-students">
+          <div class="page-heading heading-row">
+            <div>
+              <p class="eyebrow">MEMBERS</p>
+              <h1>Student directory<span class="heading-period">.</span></h1>
+              <p class="page-subtitle">Maintain student records and keep borrowing activity connected.</p>
+            </div>
+            <button class="button button-primary" id="showStudentForm"><span>＋</span> Register student</button>
+          </div>
+
+          <!-- Register Student Form Panel -->
+          <section class="panel form-panel hidden" id="studentFormPanel">
+            <div class="panel-heading">
+              <div>
+                <h2>Register a student</h2>
+                <p>Add a new student member to the library system.</p>
+              </div>
+              <button class="icon-button" id="cancelStudentForm" aria-label="Close form">✕</button>
+            </div>
+            <form id="studentForm" class="form-grid">
+              <label>
+                Full name *
+                <input id="studentName" required maxlength="100" placeholder="e.g. Aarav Sharma" />
+              </label>
+              <label>
+                Email address *
+                <input id="studentEmail" type="email" required maxlength="150" placeholder="student@university.edu" />
+              </label>
+              <label>
+                Department *
+                <input id="studentDepartment" required maxlength="100" placeholder="e.g. Computer Science" />
+              </label>
+              <div class="form-actions">
+                <button type="button" class="button button-outline" id="cancelStudentForm2">Cancel</button>
+                <button type="submit" class="button button-primary">Register student</button>
+              </div>
+            </form>
+          </section>
+
+          <!-- Students Table Panel -->
+          <section class="panel">
+            <div class="panel-heading list-heading">
+              <div>
+                <h2>Registered students <span class="count-pill" id="studentCount">0</span></h2>
+                <p>Active library cardholders registered in the system.</p>
+              </div>
+              <div class="search-box">
+                <span>⌕</span>
+                <input id="studentSearch" type="search" placeholder="Search name, email, or dept…" aria-label="Search students" />
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>STUDENT</th>
+                    <th>EMAIL</th>
+                    <th>DEPARTMENT</th>
+                    <th>STUDENT ID</th>
+                  </tr>
+                </thead>
+                <tbody id="studentsTable">
+                  <tr><td colspan="4" class="empty-cell">Loading students…</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+
+        <!-- ================= PAGE 4: ISSUE & RETURN ================= -->
+        <section class="page" id="page-loans">
+          <div class="page-heading heading-row">
+            <div>
+              <p class="eyebrow">CIRCULATION</p>
+              <h1>Issue &amp; return<span class="heading-period">.</span></h1>
+              <p class="page-subtitle">Record book loans, track due dates, and manage returns.</p>
+            </div>
+            <button class="button button-primary" id="showIssueForm"><span>＋</span> Issue a book</button>
+          </div>
+
+          <!-- Issue Book Form Panel -->
+          <section class="panel form-panel hidden" id="issueFormPanel">
+            <div class="panel-heading">
+              <div>
+                <h2>Issue a book</h2>
+                <p>Select a student, an available book title, and specify the due date.</p>
+              </div>
+              <button class="icon-button" id="cancelIssueForm" aria-label="Close form">✕</button>
+            </div>
+            <form id="issueForm" class="form-grid">
+              <label>
+                Book title *
+                <select id="issueBookId" required>
+                  <option value="">-- Select an available book --</option>
+                </select>
+              </label>
+              <label>
+                Student member *
+                <select id="issueStudentId" required>
+                  <option value="">-- Select a registered student --</option>
+                </select>
+              </label>
+              <label>
+                Due date *
+                <input id="issueDueDate" type="date" required />
+              </label>
+              <div class="form-actions">
+                <button type="button" class="button button-outline" id="cancelIssueForm2">Cancel</button>
+                <button type="submit" class="button button-primary">Confirm issue</button>
+              </div>
+            </form>
+          </section>
+
+          <!-- Circulation Summary Metric -->
+          <div class="loan-summary">
+            <div class="loan-summary-icon">⇄</div>
+            <div>
+              <strong id="loanSummaryCount">—</strong>
+              <span>books currently checked out</span>
+            </div>
+            <div class="loan-summary-note">
+              Mark returns promptly to update the inventory and keep books available for other students.
+            </div>
+          </div>
+
+          <!-- Borrow Records Table Panel -->
+          <section class="panel">
+            <div class="panel-heading list-heading">
+              <div>
+                <h2>Borrowing records <span class="count-pill" id="loanCount">0</span></h2>
+                <p>Issue dates, return status, and active loan tracking.</p>
+              </div>
+              <div class="search-box">
+                <span>⌕</span>
+                <input id="loanSearch" type="search" placeholder="Search book or student name…" aria-label="Search borrowing records" />
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>BOOK</th>
+                    <th>STUDENT</th>
+                    <th>ISSUED ON</th>
+                    <th>DUE DATE</th>
+                    <th>STATUS</th>
+                    <th>ACTION</th>
+                  </tr>
+                </thead>
+                <tbody id="loansTable">
+                  <tr><td colspan="6" class="empty-cell">Loading borrowing records…</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+          <span>© <span id="currentYear"></span> BookTrack – Library Management System</span>
+          <span>Automated CI/CD Workflow with GitHub, Jenkins &amp; Docker</span>
+        </footer>
+      </div>
+    </main>
+  </div>
+
+  <!-- Toast Notification Region -->
+  <div class="toast-region" id="toastRegion" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Confirmation Modal Dialog -->
+  <div class="modal-backdrop hidden" id="confirmBackdrop" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+    <div class="confirm-modal">
+      <div class="confirm-symbol">!</div>
+      <h2 id="confirmTitle">Confirm Action</h2>
+      <p id="confirmMessage">Are you sure you want to proceed?</p>
+      <div class="modal-actions">
+        <button class="button button-outline" id="confirmCancel">Cancel</button>
+        <button class="button button-danger" id="confirmAccept">Confirm</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
